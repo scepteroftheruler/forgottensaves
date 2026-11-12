@@ -4,7 +4,7 @@ permalink: /privacy/
 
 # ForgottenSaves Privacy Policy
 
-**Last updated:** November 11, 2026
+**Last updated:** November 13, 2026
 
 ForgottenSaves ("the extension") is a browser extension that remembers when you saved posts on Instagram and lets you browse them by month and year. This policy explains what data the extension handles and how.
 
