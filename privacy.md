@@ -66,4 +66,4 @@ If this policy changes, the updated version will be posted at this page with a n
 
 ## Contact
 
-If you have questions about this policy, contact: **YOUR_EMAIL@example.com**
+If you have questions about this policy, contact: s09092006@proton.me
