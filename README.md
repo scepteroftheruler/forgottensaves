@@ -29,7 +29,7 @@ Instagram doesn't show when you saved a post, which makes old saves hard to find
 
 ## Privacy
 
-Read the full [privacy policy](https://YOUR_GITHUB_USERNAME.github.io/forgottensaves/privacy/).
+Read the full [privacy policy](https://scepteroftheruler.github.io/forgottensaves/privacy/).
 
 ## Contact
 
