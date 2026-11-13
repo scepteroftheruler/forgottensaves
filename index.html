@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ForgottenSaves: find your Instagram saves by date</title>
+<meta name="description" content="ForgottenSaves remembers when you saved Instagram posts, so you can jump back to any month or year. A free Chrome extension.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23000'/%3E%3Cpath d='M20 12h24v40L32 41 20 52z' fill='none' stroke='%23fff' stroke-width='4' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+:root {
+  --bg: #ffffff;
+  --fg: #000000;
+  --mute: #5c5c5c;
+  --line: #d9d9d9;
+  --tile: #ededed;
+  --btn-bg: #000000;
+  --btn-fg: #ffffff;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #000000; --fg: #ffffff; --mute: #a3a3a3; --line: #2e2e2e; --tile: #1c1c1c;
+    --btn-bg: #ffffff; --btn-fg: #000000;
+  }
+}
+* { box-sizing: border-box; }
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 17px/1.6 var(--sans);
+  padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px);
+}
+.wrap { max-width: 920px; margin: 0 auto; padding: 0 24px; }
+a { color: inherit; }
+a:focus-visible, button:focus-visible, select:focus-visible { outline: 3px solid var(--fg); outline-offset: 3px; }
+
+header.top { display: flex; align-items: center; gap: 12px; padding: 22px 0; }
+header.top svg { width: 36px; height: 36px; flex: none; }
+header.top strong { font-size: 18px; letter-spacing: .01em; }
+
+.hero { padding: 56px 0 40px; }
+h1 {
+  font: 700 clamp(38px, 7vw, 68px)/1.04 var(--serif);
+  letter-spacing: -.02em; margin: 0 0 22px; max-width: 14em;
+}
+.lead { font-size: 20px; color: var(--mute); max-width: 34em; margin: 0 0 30px; }
+.cta { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+.btn {
+  display: inline-block; background: var(--btn-bg); color: var(--btn-fg);
+  padding: 14px 24px; border-radius: 999px; font-weight: 600; text-decoration: none;
+}
+.btn:hover { opacity: .85; }
+.note { color: var(--mute); font-size: 15px; }
+
+/* live demo of the extension's list page */
+.demo { margin: 36px 0 8px; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.demo-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.demo-bar b { margin-right: auto; }
+.demo select {
+  font: inherit; color: var(--fg); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px;
+}
+.demo-count { padding: 10px 16px 0; color: var(--mute); font-size: 14px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; padding: 12px 16px 16px; }
+.card { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; font-size: 13px; }
+.tile { aspect-ratio: 1; background: var(--tile); display: grid; place-items: center; }
+.tile svg { width: 34%; opacity: .55; }
+.card div.meta { padding: 8px 10px 10px; }
+.card .who { font-weight: 600; }
+.card .cap { color: var(--mute); }
+.card .when { color: var(--mute); font-size: 12px; margin-top: 4px; }
+.caption { color: var(--mute); font-size: 14px; margin: 10px 0 0; }
+
+section { padding: 48px 0 8px; border-top: 1px solid var(--line); margin-top: 40px; }
+h2 { font: 700 clamp(26px, 4vw, 34px)/1.15 var(--serif); letter-spacing: -.01em; margin: 0 0 20px; }
+ol.steps { padding-left: 1.3em; margin: 0; max-width: 38em; }
+ol.steps li { margin: 0 0 12px; padding-left: 6px; }
+ul.plain { padding-left: 1.2em; margin: 0; max-width: 38em; }
+ul.plain li { margin: 0 0 10px; }
+p.body { max-width: 38em; margin: 0 0 14px; }
+
+footer { margin-top: 56px; padding: 28px 0 44px; border-top: 1px solid var(--line); color: var(--mute); font-size: 14px; }
+footer p { max-width: 44em; margin: 0 0 10px; }
+footer .links { display: flex; flex-wrap: wrap; gap: 18px; margin-bottom: 14px; color: var(--fg); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <svg viewBox="0 0 64 64" role="img" aria-label="ForgottenSaves icon">
+    <rect width="64" height="64" fill="#000"/>
+    <path d="M20 12h24v40L32 41 20 52z" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
+  </svg>
+  <strong>ForgottenSaves</strong>
+</header>
+
+<main>
+<div class="hero">
+  <h1>Find what you saved by when you saved it.</h1>
+  <p class="lead">Instagram doesn’t show when you saved a post. ForgottenSaves keeps the date for you, so you can go back to any month or year.</p>
+  <div class="cta">
+    <a class="btn" href="https://chromewebstore.google.com/detail/forgottensaves/jejcmhdagjfnmkjpjieiffpfchponlbo">Add to Chrome</a>
+    <span class="note">Free. Your data never leaves your browser.</span>
+  </div>
+
+  <div class="demo" aria-label="Interactive example of the extension’s list">
+    <div class="demo-bar">
+      <b>Your saves</b>
+      <label for="month" class="note">Jump to</label>
+      <select id="month"></select>
+    </div>
+    <div class="demo-count" id="count" aria-live="polite"></div>
+    <div class="grid" id="grid"></div>
+  </div>
+  <p class="caption">An example with made-up posts. Pick a month to see how it works.</p>
+</div>
+
+<section>
+  <h2>How it works</h2>
+  <ol class="steps">
+    <li>Install the extension and keep using Instagram on instagram.com as usual.</li>
+    <li>Each time you save a post, ForgottenSaves records the date, the link, the author, the start of the caption and a small thumbnail.</li>
+    <li>Click the extension icon to open your list. Pick a month and year, or search by author or caption.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>What you get</h2>
+  <ul class="plain">
+    <li>The real date and time you saved each post, not the date it was posted.</li>
+    <li>A list you can filter by month and year, and search by author or caption.</li>
+    <li>Thumbnails that stay visible even after Instagram’s image links expire.</li>
+    <li>A mark on posts you later removed from your saved list.</li>
+    <li>Back up and restore your list as a file, so you never lose it.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Good to know</h2>
+  <ul class="plain">
+    <li>It only records posts you save <strong>after installing</strong>. Older saves can’t be dated.</li>
+    <li>It only sees saves made in the browser on instagram.com. Saves made in the Instagram mobile app aren’t detected.</li>
+    <li>Everything is stored on your device. Nothing is sent to any server. Read the <a href="privacy/">privacy policy</a>.</li>
+    <li>If Instagram changes how its site works, the extension may need an update.</li>
+  </ul>
+</section>
+</main>
+
+<footer>
+  <div class="links">
+    <a href="https://chromewebstore.google.com/detail/forgottensaves/jejcmhdagjfnmkjpjieiffpfchponlbo">Chrome Web Store</a>
+    <a href="privacy/">Privacy policy</a>
+    <a href="mailto:s09092006@proton.me">Contact</a>
+  </div>
+  <p>ForgottenSaves is an independent project. It is not affiliated with, endorsed by, or sponsored by Instagram or Meta Platforms, Inc.</p>
+</footer>
+
+</div>
+
+<script>
+(function () {
+  // Made-up sample posts for the demo only.
+  var posts = [
+    { who: '@sample_travel',  cap: 'Hidden beaches worth the detour', ym: '2026-03', day: 'Mar 14, 2026' },
+    { who: '@sample_kitchen', cap: 'One-pan dinner, ten minutes',    ym: '2026-03', day: 'Mar 2, 2026' },
+    { who: '@sample_studio',  cap: 'A small desk setup that works',  ym: '2025-07', day: 'Jul 21, 2025' },
+    { who: '@sample_garden',  cap: 'Herbs that survive any window',  ym: '2025-07', day: 'Jul 9, 2025' },
+    { who: '@sample_books',   cap: 'Short novels for long trains',   ym: '2024-12', day: 'Dec 30, 2024' },
+    { who: '@sample_run',     cap: 'Easy loops for a first 10K',     ym: '2024-12', day: 'Dec 3, 2024' }
+  ];
+  var months = [
+    ['', 'All months'], ['2026-03', 'March 2026'], ['2025-07', 'July 2025'], ['2024-12', 'December 2024']
+  ];
+  var sel = document.getElementById('month');
+  var grid = document.getElementById('grid');
+  var count = document.getElementById('count');
+  sel.innerHTML = months.map(function (m) { return '<option value="' + m[0] + '">' + m[1] + '</option>'; }).join('');
+
+  var icon = '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M20 12h24v40L32 41 20 52z" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/></svg>';
+
+  function render() {
+    var v = sel.value;
+    var list = posts.filter(function (p) { return !v || p.ym === v; });
+    count.textContent = list.length + ' of ' + posts.length + ' saves';
+    grid.innerHTML = list.map(function (p) {
+      return '<div class="card"><div class="tile">' + icon + '</div>' +
+        '<div class="meta"><div class="who">' + p.who + '</div>' +
+        '<div class="cap">' + p.cap + '</div>' +
+        '<div class="when">Saved ' + p.day + '</div></div></div>';
+    }).join('');
+  }
+  sel.addEventListener('change', render);
+  render();
+})();
+</script>
+</body>
+</html>
