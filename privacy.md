@@ -24,7 +24,7 @@ When you save or unsave a post on instagram.com while the extension is installed
 - The post's ID and link
 - The author's username, when it can be read from the page
 - The beginning of the post's caption (up to 300 characters), when it can be read from the page
-- A small, downsized copy of the post's thumbnail image
+- A small, downsized thumbnail of the post (its image, or a single frame taken from its video)
 - The date and time you saved the post, and the date and time you removed it (if you did)
 
 The extension does not read your messages, your password, your followers, your browsing history outside of instagram.com, or any other personal information.
